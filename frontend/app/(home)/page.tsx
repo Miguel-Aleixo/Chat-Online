@@ -239,7 +239,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black md:p-8 flex items-center justify-center">
-      <div className="w-full pt-30 md:pt-0 max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {/* SIDEBAR / PROFILE INFO */}
         <aside className="lg:col-span-4 hidden md:flex flex-col gap-6 overflow-hidden ">
@@ -294,7 +294,7 @@ export default function Home() {
         </aside>
 
         {/* MAIN CHAT AREA */}
-        <section className="w-full lg:col-span-8 flex flex-col h-[100dvh] lg:h-[85vh] bg-slate-800/50 backdrop-blur-xl border border-slate-700 md:rounded-3xl shadow-2xl overflow-hidden">
+        <section className="w-full lg:col-span-8 flex flex-col h-screen lg:h-[85vh] bg-slate-800/50 backdrop-blur-xl border border-slate-700 md:rounded-3xl shadow-2xl overflow-hidden">
 
           {/* CHAT HEADER */}
           <header className="px-6 py-4 border-b border-slate-700 bg-slate-800/30 flex items-center justify-between">
@@ -441,7 +441,7 @@ export default function Home() {
 
                   </div>
 
-                  <div className="w-full">
+                  <div className="w-full flex flex-col">
 
                     <span className={`w-full relative text-center text-[8px] rounded-full rounded-b-none p-1 mb-2 bg-indigo-500/10 text-indigo-400 border
                   ${msg.usuario?.email === user?.email
