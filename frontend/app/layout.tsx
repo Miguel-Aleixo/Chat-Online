@@ -30,9 +30,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex-1 flex-col">
 
-        <main className="flex-1 mt-40 md:pt-0">
-          {children}
-        </main>
+        {children}
 
         <Toaster position="bottom-right" />
       </body>
