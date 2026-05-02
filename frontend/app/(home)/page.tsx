@@ -239,7 +239,7 @@ export default function Home() {
 
   return (
     <main className="md:min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black md:p-8 flex items-center justify-center">
-      <div className="w-full mt-30 md:mt-0 max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="w-full pt-30 md:pt-0 max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {/* SIDEBAR / PROFILE INFO */}
         <aside className="lg:col-span-4 hidden md:flex flex-col gap-6 overflow-hidden ">
