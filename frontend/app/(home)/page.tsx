@@ -1,23 +1,60 @@
 'use client'
 
+// HOOKS
 import { useRouter } from "next/navigation";
 import { useAuth } from "../hooks/useAuth";
-import { LogOut, Send, User, MessageSquare, Loader2 } from "lucide-react";
-import toast from "react-hot-toast";
-import { getSocket } from '../lib/socket'
 import { useEffect, useRef, useState } from 'react'
 
+// ICONES
+import { LogOut, Send, User, MessageSquare, Loader2 } from "lucide-react";
+
+// TOAST
+import toast from "react-hot-toast";
+
+// SOCKET
+import { getSocket } from '../lib/socket'
 
 export default function Home() {
+
+  // NAVEGAÇÃO
   const router = useRouter();
+
+  // INFOMAÇÕES DO USUÁRIO
   const { user, loading, isLogged } = useAuth();
+
+  // MENSAGENS 
   const [messages, setMessages] = useState<any[]>([])
+
+  // CAMPO DE TEXTO
   const [text, setText] = useState('');
+
+  // SOCKET
   const socketRef = useRef<any>(null);
-  const [onlineUsers, setOnlineUsers] = useState<number[]>([])
+
+  // LISTA DE USUÁRIOS CONECTADOS
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([])
+
+  // URL DO BACKEND
   const URL = process.env.NEXT_PUBLIC_URL_BACK;
 
+  // SCROOL AUTOMATICO
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  // USUARIOS
+  const prevUsersRef = useRef<string[]>([])
+
+  // PARA BUSCAR MENSAGENS NO BANCO
+  useEffect(() => {
+
+    // SE NÃO TEM USUARIO RETORNA
     if (!user) return
 
     setMessages([]);
@@ -27,8 +64,10 @@ export default function Home() {
       .find(row => row.startsWith('token='))
       ?.split('=')[1]
 
+    // SE NÃO TEM TOKEN RETORNA
     if (!token) return
 
+    // MANDA O TOKEN
     const socket = getSocket(token)
 
     socketRef.current = socket
@@ -45,6 +84,7 @@ export default function Home() {
 
     socket.off('new_message')
 
+    // MANDA MENSAGEM
     socket.on('new_message', (msg) => {
       setMessages((prev) => {
         const exists = prev.some(m => m.id === msg.id)
@@ -59,18 +99,45 @@ export default function Home() {
       }
     })
 
-    socket.on('message_updated', (updatedMsg) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === updatedMsg.id ? updatedMsg : m
-        )
-      )
-    })
-
+    // LISTA DE USUARIOS CONECTADOS
     socket.on('users_online', (users) => {
+      const prevUsers = prevUsersRef.current
+
+      // quem entrou
+      const entrou = users.filter((u: string) => !prevUsers.includes(u))
+
+      // quem saiu
+      const saiu = prevUsers.filter((u: string) => !users.includes(u))
+
+      entrou.forEach((u: string) => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `join-${u}-${Date.now()}`,
+            system: true,
+            text: `🟢 ${u} entrou no chat`,
+            createdAt: new Date().toISOString(),
+          }
+        ])
+      })
+
+      saiu.forEach((u: string) => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `leave-${u}-${Date.now()}`,
+            system: true,
+            text: `🔴 ${u} saiu do chat`,
+            createdAt: new Date().toISOString(),
+          }
+        ])
+      })
+
+      prevUsersRef.current = users
       setOnlineUsers(users)
     })
 
+    // BUSCAR MENSAGENS NO BANCO
     fetch(`${URL}/mensagem`)
       .then(res => res.json())
       .then(data => {
@@ -102,7 +169,10 @@ export default function Home() {
     }
   }, [user])
 
+  // MANDAR MENSAGEM
   const sendMessage = () => {
+    if (!text.trim()) return
+
     const socket = socketRef.current
 
     if (!socket || !socket.connected) {
@@ -117,6 +187,7 @@ export default function Home() {
     setText('')
   }
 
+  // DESLOGAR
   const logout = async () => {
     try {
       const res = await fetch('/api/auth/logout', {
@@ -140,6 +211,7 @@ export default function Home() {
     }
   };
 
+  // FEEDBACK
   if (loading) {
     return (
       <main className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center text-white gap-4">
@@ -150,44 +222,47 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black p-4 md:p-8 flex items-center justify-center">
+    <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black p-4 md:p-8 flex items-center justify-center">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {/* SIDEBAR / PROFILE INFO */}
         <aside className="lg:col-span-4 flex flex-col gap-6">
           <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 p-6 rounded-3xl shadow-2xl">
+            <button
+              onClick={logout}
+              className=" cursor-pointer flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-3 px-5 rounded-2xl font-semibold transition-all duration-300 border border-red-500/20 group"
+            >
+              <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            </button>
+
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <div className="w-20 h-20 rounded-full bg-linear-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                 <User className="w-10 h-10 text-white" />
               </div>
 
-              <div>
-                <h2 className="text-xl font-bold text-white">Meu Perfil</h2>
-                <p className="text-slate-400 text-sm">Bem-vindo de volta!</p>
-              </div>
-
               {isLogged && user && (
-                <div className="w-full text-left mt-2 p-4 bg-slate-900/50 rounded-2xl border border-slate-700/50 flex flex-col gap-2">
-                  <div className="flex flex-col items-start gap-2">
-                    <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Email</span>
-                    <span className="text-sm text-slate-200 truncate w-full">{user.email}</span>
-                  </div>
-                  <div className="flex flex-col items-start gap-2">
-                    <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Cargo</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                      {user.role}
-                    </span>
-                  </div>
-                </div>
-              )}
+                <>
 
-              <button
-                onClick={logout}
-                className="w-full mt-4 cursor-pointer flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-3 px-5 rounded-2xl font-semibold transition-all duration-300 border border-red-500/20 group"
-              >
-                <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                Sair da conta
-              </button>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">{user.name}</h2>
+                    <p className="text-slate-400 text-sm">Bem-vindo de volta!</p>
+                  </div>
+
+                  <div className="w-full text-left mt-2 p-4 bg-slate-900/50 rounded-2xl border border-slate-700/50 flex flex-col gap-2">
+                    <div className="flex flex-col items-start gap-2">
+                      <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Email</span>
+                      <span className="text-sm text-slate-200 truncate w-full">{user.email}</span>
+                    </div>
+                    <div className="flex flex-col items-start gap-2">
+                      <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Cargo</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                        {user.role}
+                      </span>
+                    </div>
+                  </div>
+
+                </>
+              )}
             </div>
           </div>
 
@@ -203,7 +278,7 @@ export default function Home() {
         </aside>
 
         {/* MAIN CHAT AREA */}
-        <section className="lg:col-span-8 flex flex-col h-[70vh] lg:h-[92vh] bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl overflow-hidden">
+        <section className="lg:col-span-8 flex flex-col h-[70vh] lg:h-[85vh] bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl overflow-hidden">
 
           {/* CHAT HEADER */}
           <header className="p-6 border-b border-slate-700 bg-slate-800/30 flex items-center justify-between">
@@ -214,6 +289,14 @@ export default function Home() {
               </h1>
               <p className="text-slate-400 text-xs">Sinta-se à vontade para escrever</p>
             </div>
+
+            {/* ONLINE USERS */}
+            <div className="flex items-center gap-2 bg-slate-900/50 border border-slate-700 px-4 py-2 rounded-xl">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              <span className="text-sm text-slate-300 font-medium">
+                {onlineUsers.length} online
+              </span>
+            </div>
           </header>
 
           {/* MESSAGES AREA */}
@@ -222,6 +305,18 @@ export default function Home() {
             {messages.map((msg, i) => {
               console.log('USER LOGADO:', user?.email)
               console.log('MSG:', msg.usuario?.email)
+
+              if (msg.system) {
+                return (
+                  <div
+                    key={msg.id}
+                    className="text-center text-xs text-slate-500 italic bg-slate-800/40 px-3 py-1 rounded-lg self-center"
+                  >
+                    {msg.text}
+                  </div>
+                )
+              }
+
               return (
 
                 <div
@@ -234,7 +329,7 @@ export default function Home() {
 
                   <div className="flex items-center gap-2 mb-1">
                     <span
-                      className={`w-2 h-2 rounded-full ${onlineUsers.includes(msg.usuario?.email)
+                      className={`w-2 h-2 rounded-full ${onlineUsers.includes(msg.usuario?.id)
                         ? 'bg-green-500'
                         : 'bg-gray-500'
                         }`}
@@ -244,16 +339,24 @@ export default function Home() {
                       {msg.usuario?.name || 'Usuário'}
                     </span>
 
-                    <span className="text-[9px] px-1 py-[1px] rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                      {msg.usuario?.role}
-                    </span>
-
                   </div>
 
+                  <span className={`w-full relative top-2 text-center text-[8px] rounded-full rounded-b-none p-1 mb-2 bg-indigo-500/10 text-indigo-400 border
+                  ${msg.usuario?.email === user?.email
+                      ? 'rounded-tr-none border-indigo-500/20'
+                      : 'rounded-tl border-slate-600 text-slate-400'
+                      }`}>
+                    <span className="relative top-px">
+
+                      {msg.usuario?.role}
+
+                    </span>
+                  </span>
+
                   <div
-                    className={`p-4 rounded-2xl ${msg.usuario?.email === user?.email
-                      ? 'bg-indigo-600 text-white rounded-tr-none'
-                      : 'bg-slate-700/50 text-slate-100 rounded-tl-none border border-slate-600'
+                    className={`p-4 rounded-2xl border-t-0 ${msg.usuario?.email === user?.email
+                      ? 'bg-indigo-600 text-white rounded-t-none'
+                      : 'bg-slate-700/50 text-slate-100 rounded-t-none border border-slate-600'
                       }`}
                   >
                     <span className="block">
@@ -268,27 +371,31 @@ export default function Home() {
                         })}
                       </span>
 
-                      {msg.usuario?.email === user?.email && (
-                        <span className={msg.readAt ? 'text-blue-400' : ''}>
-                          {msg.readAt ? '✔✔' : '✔'}
-                        </span>
-                      )}
                     </div>
                   </div>
-                </div>
+                </div >
               )
             })}
+
+            <div ref={messagesEndRef} />
 
           </div>
 
           {/* INPUT AREA */}
           <footer className="p-6 bg-slate-800/30 border-t border-slate-700">
             <div className="relative flex items-center gap-3">
-              <input
+              <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    sendMessage()
+                  }
+                }}
+                rows={1}
                 placeholder="Digite sua mensagem..."
-                className="flex-1 bg-slate-900/80 border border-slate-700 text-slate-200 p-4 pr-14 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder:text-slate-600"
+                className="flex-1 bg-slate-900/80 border border-slate-700 text-slate-200 p-4 pr-14 rounded-2xl outline-none resize-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder:text-slate-600"
               />
               <button
                 onClick={sendMessage}

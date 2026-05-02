@@ -9,6 +9,7 @@ type User = {
   role: string
 }
 
+// BUSCA INFORMAÇÕES DO USUARIO
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)

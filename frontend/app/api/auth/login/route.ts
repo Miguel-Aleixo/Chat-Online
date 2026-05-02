@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
+
+    // URL DO BACKEND
     const URL = process.env.NEXT_PUBLIC_URL_BACK
+
+    // BODY
     const body = await req.json()
 
     const res = await fetch(`${URL}/auth`, {
@@ -12,14 +16,14 @@ export async function POST(req: Request) {
     })
 
     if (!res.ok) {
-        const errorText = await res.text()
-
+        const dataError = await res.json()
+        
         return NextResponse.json(
             {
-                error: 'Erro na autenticação',
-                details: errorText
+                error: dataError.error,
+                message: dataError.message
             },
-            { status: 401 }
+            { status: dataError.statusCode }
         )
     }
 
@@ -27,6 +31,7 @@ export async function POST(req: Request) {
 
     const response = NextResponse.json({ ok: true })
 
+    // SALVA TOKEN
     response.cookies.set('token', data.access_token, {
         httpOnly: false,
         path: '/',

@@ -1,21 +1,34 @@
 'use client'
 
+// HOOKS
 import { useRouter } from "next/navigation";
 import { useState } from "react"
+
+// ICONES
 import { User, Mail, Lock, UserPlus, Loader2, ArrowRight } from "lucide-react"
+
+// TOAST
 import toast from 'react-hot-toast'
 
 export default function Cadastro() {
+
+    // URL DO BACKEND
     const URL = process.env.NEXT_PUBLIC_URL_BACK;
+
+    // NAVEGAÇÃO
     const router = useRouter();
 
+    // FORMULÁRIO
     const [form, setForm] = useState({
         name: '',
         email: '',
         password: ''
     })
+
+    // FEEDBACK
     const [isLoading, setIsLoading] = useState(false)
 
+    // FORMATAÇÃO DE ERRO -> APENAS PARA DEIXAR BONITO
     const formatError = (data: any) => {
         if (!data) return 'Erro inesperado'
 
@@ -34,8 +47,10 @@ export default function Cadastro() {
         return 'Erro inesperado'
     }
 
+    // CADASTRO
     const cadastrar = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
         setIsLoading(true);
 
         try {
@@ -52,6 +67,7 @@ export default function Cadastro() {
                 return
             }
 
+            // LOGIN DIRETO
             const logar = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -76,7 +92,7 @@ export default function Cadastro() {
     }
 
     return (
-        <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black flex items-center justify-center px-4 py-6 relative overflow-hidden">
+        <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black flex items-center justify-center px-4 py-6 relative overflow-hidden">
 
             {/* BACKGROUND DECORATION */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -84,20 +100,20 @@ export default function Cadastro() {
                 <div className="absolute bottom-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px]"></div>
             </div>
 
-            <div className="w-full max-w-[420px] relative">
+            <div className="w-full max-w-105 relative">
                 {/* CARD */}
-                <div className="bg-slate-800/40 backdrop-blur-2xl border border-slate-700/50 p-6 md:p-8 rounded-[2.5rem] shadow-2xl">
+                <div className="md:bg-slate-800/40 backdrop-blur-2xl md:border border-slate-700/50 p-6 md:p-8 md:rounded-[2.5rem] md:shadow-2xl">
 
-                    {/* HEADER - Mais compacto */}
+                    {/* HEADER */}
                     <div className="text-center mb-6">
-                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-500 shadow-lg shadow-purple-500/20 mb-3 -rotate-3">
+                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-linear-to-tr from-purple-500 to-indigo-500 shadow-lg shadow-purple-500/20 mb-3 -rotate-3">
                             <UserPlus className="w-7 h-7 text-white" />
                         </div>
                         <h1 className="text-2xl font-bold text-white tracking-tight">Criar conta</h1>
                         <p className="text-slate-400 text-sm mt-1">Junte-se a nós hoje</p>
                     </div>
 
-                    {/* FORM - Espaçamento otimizado */}
+                    {/* FORM */}
                     <form onSubmit={cadastrar} className="flex flex-col gap-3.5">
 
                         {/* NOME */}
@@ -154,10 +170,10 @@ export default function Cadastro() {
                             </div>
                         </div>
 
-                        {/* BOTÃO - Mais compacto */}
+                        {/* BOTÃO */}
                         <button
                             disabled={isLoading}
-                            className="mt-3 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 group active:scale-[0.98] text-sm"
+                            className="cursor-pointer mt-3 w-full bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 group active:scale-[0.98] text-sm"
                         >
                             {isLoading ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -171,7 +187,7 @@ export default function Cadastro() {
 
                     </form>
 
-                    {/* FOOTER - Margem reduzida */}
+                    {/* FOOTER */}
                     <div className="mt-8 text-center">
                         <p className="text-slate-400 text-xs font-medium">
                             Já tem conta?{' '}

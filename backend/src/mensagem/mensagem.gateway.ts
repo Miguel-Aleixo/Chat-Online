@@ -52,7 +52,7 @@ export class MensagemGateway implements OnGatewayConnection, OnGatewayDisconnect
         onlineUsers.get(userId)?.add(client.id)
       }
 
-      // 🔥 AVISA TODO MUNDO QUEM TÁ ONLINE
+      // AVISA TODO MUNDO QUEM TÁ ONLINE
       this.server.emit('users_online', Array.from(onlineUsers.keys()))
 
     } catch {
@@ -75,7 +75,7 @@ export class MensagemGateway implements OnGatewayConnection, OnGatewayDisconnect
       }
     }
 
-    // 🔥 ATUALIZA LISTA PRA TODO MUNDO
+    // ATUALIZA LISTA PRA TODO MUNDO
     this.server.emit('users_online', Array.from(onlineUsers.keys()))
   }
 
@@ -97,14 +97,5 @@ export class MensagemGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     this.server.emit('new_message', message)
 
-  }
-
-  @SubscribeMessage('message_read')
-  async markAsRead(@MessageBody() msgId: number) {
-    const message = await this.mensagemService.markAsRead(msgId)
-
-    this.server.emit('message_updated', message)
-
-    return message
   }
 }

@@ -1,18 +1,31 @@
 'use client'
 
+// HOOKS
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+
+// ICONES
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react"
 import { FaChrome, FaGithub } from "react-icons/fa"
+
+// TOAST
 import toast from "react-hot-toast"
 
 export default function Login() {
+
+    // NAVEGAÇÃO
+    const router = useRouter();
+
+    // FORMULÁRIO
     const [form, setForm] = useState({
         email: '',
         password: ''
     })
+
+    // FEEDBACK
     const [isLoading, setIsLoading] = useState(false);
 
+    // FORMATAÇÃO DE ERRO -> APENAS PARA DEIXAR BONITO
     const formatError = (data: any) => {
         if (!data) return 'Erro inesperado'
 
@@ -31,8 +44,7 @@ export default function Login() {
         return 'Erro inesperado'
     }
 
-    const router = useRouter()
-
+    // AUTENTICAÇÃO
     const login = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setIsLoading(true)
@@ -64,28 +76,28 @@ export default function Login() {
     }
 
     return (
-        <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black flex items-center justify-center px-4 py-6 relative overflow-hidden">
+        <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black flex items-center justify-center px-4 py-6 relative overflow-hidden">
 
-            {/* BACKGROUND DECORATION */}
+            {/* BACKGROUND */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px]"></div>
                 <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px]"></div>
             </div>
 
-            <div className="w-full max-w-[400px] relative">
+            <div className="w-full max-w-100 relative">
                 {/* CARD */}
-                <div className="bg-slate-800/40 backdrop-blur-2xl border border-slate-700/50 p-6 md:p-8 rounded-[2rem] shadow-2xl">
+                <div className="md:bg-slate-800/40 backdrop-blur-2xl md:border border-slate-700/50 p-6 md:p-8 md:rounded-4xl md:shadow-2xl">
 
-                    {/* HEADER - Mais compacto */}
+                    {/* HEADER */}
                     <div className="text-center mb-6">
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/20 mb-3 rotate-3">
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/20 mb-3 rotate-3">
                             <Lock className="w-6 h-6 text-white" />
                         </div>
                         <h1 className="text-2xl font-bold text-white tracking-tight">Bem-vindo</h1>
                         <p className="text-slate-400 text-sm mt-1">Acesse sua conta</p>
                     </div>
 
-                    {/* FORM - Espaçamento reduzido */}
+                    {/* FORM */}
                     <form onSubmit={login} className="flex flex-col gap-4">
 
                         {/* EMAIL */}
@@ -127,10 +139,10 @@ export default function Login() {
                             </div>
                         </div>
 
-                        {/* BOTÃO - Mais fino */}
+                        {/* BOTÃO */}
                         <button
                             disabled={isLoading}
-                            className="mt-2 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 group active:scale-[0.98] text-sm"
+                            className="cursor-pointer mt-2 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 group active:scale-[0.98] text-sm"
                         >
                             {isLoading ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -144,7 +156,7 @@ export default function Login() {
 
                     </form>
 
-                    {/* DIVIDER - Margens reduzidas */}
+                    {/* DIVIDER */}
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-slate-700/50"></div>
@@ -154,19 +166,19 @@ export default function Login() {
                         </div>
                     </div>
 
-                    {/* SOCIAL LOGIN - Botões menores */}
+                    {/* SOCIAL LOGIN */}
                     <div className="grid grid-cols-2 gap-3">
-                        <button className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-slate-900/50 border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white transition-all font-medium text-xs">
+                        <button className="flex items-center cursor-pointer justify-center gap-2 py-2 px-3 rounded-lg bg-slate-900/50 border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white transition-all font-medium text-xs">
                             <FaGithub className="w-4 h-4" />
                             Github
                         </button>
-                        <button className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-slate-900/50 border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white transition-all font-medium text-xs">
+                        <button className="flex items-center cursor-pointer justify-center gap-2 py-2 px-3 rounded-lg bg-slate-900/50 border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white transition-all font-medium text-xs">
                             <FaChrome className="w-4 h-4" />
                             Google
                         </button>
                     </div>
 
-                    {/* FOOTER - Margem reduzida */}
+                    {/* FOOTER */}
                     <div className="mt-6 text-center">
                         <p className="text-slate-400 text-xs font-medium">
                             Não tem conta?{' '}

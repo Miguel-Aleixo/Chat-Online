@@ -14,7 +14,7 @@ export class AuthController {
 
     // 🔥 AQUI QUE SALVA O COOKIE
     res.cookie('token', access_token, {
-      httpOnly: false, // 👈 necessário pro document.cookie
+      httpOnly: false,
       sameSite: 'lax',
       path: '/',
     });

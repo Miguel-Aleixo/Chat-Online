@@ -60,25 +60,6 @@ export class MensagemService {
     })
   }
 
-  async markAsRead(id: number) {
-    return this.prisma.mensagem.update({
-      where: { id },
-      data: {
-        readAt: new Date(),
-      },
-      include: {
-        usuario: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-          }
-        }
-      }
-    })
-  }
-
   async remove(id: number) {
     return this.prisma.mensagem.delete({
       where: { id },
