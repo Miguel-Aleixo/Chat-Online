@@ -432,8 +432,8 @@ export default function Home() {
                   <div className="flex items-center gap-2 mb-1">
                     <span
                       className={`w-2 h-2 rounded-full ${onlineUsers.some((user) => user.id === msg.usuario?.id)
-                          ? 'bg-green-500'
-                          : 'bg-gray-500'
+                        ? 'bg-green-500'
+                        : 'bg-gray-500'
                         }`}
                     />
 
@@ -443,37 +443,42 @@ export default function Home() {
 
                   </div>
 
-                  <span className={`w-full relative top-2 text-center text-[8px] rounded-full rounded-b-none p-1 mb-2 bg-indigo-500/10 text-indigo-400 border
+                  <div>
+
+
+                    <span className={`w-full relative top-2 text-center text-[8px] rounded-full rounded-b-none p-1 mb-2 bg-indigo-500/10 text-indigo-400 border
                   ${msg.usuario?.email === user?.email
-                      ? 'rounded-tr-none border-indigo-500/20'
-                      : 'rounded-tl border-slate-600 text-slate-400'
-                    }`}>
-                    <span className="relative top-px">
+                        ? 'rounded-tr-none border-indigo-500/20'
+                        : 'rounded-tl border-slate-600 text-slate-400'
+                      }`}>
+                      <span className="relative top-px">
 
-                      {msg.usuario?.role}
+                        {msg.usuario?.role}
 
-                    </span>
-                  </span>
-
-                  <div
-                    className={`p-4 rounded-2xl border-t-0 ${msg.usuario?.email === user?.email
-                      ? 'bg-indigo-600 text-white rounded-t-none'
-                      : 'bg-slate-700/50 text-slate-100 rounded-t-none border border-slate-600'
-                      }`}
-                  >
-                    <span className="block">
-                      {msg.text}
+                      </span>
                     </span>
 
-                    <div className="flex justify-end items-center gap-1 mt-1 text-[10px] opacity-70">
-                      <span>
-                        {new Date(msg.createdAt).toLocaleTimeString('pt-BR', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                    <div
+                      className={`p-4 rounded-2xl border-t-0 ${msg.usuario?.email === user?.email
+                        ? 'bg-indigo-600 text-white rounded-t-none'
+                        : 'bg-slate-700/50 text-slate-100 rounded-t-none border border-slate-600'
+                        }`}
+                    >
+                      <span className="block">
+                        {msg.text}
                       </span>
 
+                      <div className="flex justify-end items-center gap-1 mt-1 text-[10px] opacity-70">
+                        <span>
+                          {new Date(msg.createdAt).toLocaleTimeString('pt-BR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+
+                      </div>
                     </div>
+
                   </div>
                 </div >
               )
