@@ -443,9 +443,9 @@ export default function Home() {
 
                   </div>
 
-                  <div>
+                  <div className="w-full">
 
-                    <span className={`w-full relative top-2 text-center text-[8px] rounded-full rounded-b-none p-1 mb-2 bg-indigo-500/10 text-indigo-400 border
+                    <span className={`w-full relative text-center text-[8px] rounded-full rounded-b-none p-1 mb-2 bg-indigo-500/10 text-indigo-400 border
                   ${msg.usuario?.email === user?.email
                         ? 'rounded-tr-none border-indigo-500/20'
                         : 'rounded-tl border-slate-600 text-slate-400'
