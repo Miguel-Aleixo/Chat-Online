@@ -238,7 +238,7 @@ export default function Home() {
   console.log(onlineUsers);
 
   return (
-    <main className="md:min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black md:p-8 flex items-center justify-center">
+    <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black md:p-8 flex items-center justify-center">
       <div className="w-full pt-30 md:pt-0 max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {/* SIDEBAR / PROFILE INFO */}
