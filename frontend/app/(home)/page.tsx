@@ -236,88 +236,8 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black p-4 md:p-8 flex items-center justify-center">
+    <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black md:p-8 flex items-center justify-center">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        {/* MOBILE HEADER COM ANIMAÇÃO */}
-        <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-slate-800/50 backdrop-blur-2xl border-b border-slate-800/50 shadow-2xl">
-
-          {/* Topo fixo */}
-          <div className="flex items-center justify-between p-4 gap-3">
-
-            {/* Botão logout */}
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 px-3 py-2 rounded-xl border border-red-500/20 transition-all active:scale-95 duration-200 text-sm font-medium"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden xs:inline">Sair</span>
-            </button>
-
-            {/* Botão toggle com animação */}
-            <button
-              onClick={() => setOpenHeader(!openHeader)}
-              className="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-95"
-            >
-              <BiChevronDown
-                className={`w-5 h-5 text-indigo-400 transition-all duration-500 ${openHeader ? "rotate-180" : ""}`}
-              />
-            </button>
-
-          </div>
-
-          {/* Conteúdo expansível com animação suave */}
-          <div
-            className={`
-              transition-all duration-500 ease-in-out overflow-hidden
-              ${openHeader ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}
-            `}
-          >
-            <div className="px-4 pb-4 space-y-3 text-sm border-t border-slate-800/50 pt-4">
-
-              {/* Informações do usuário */}
-              <div className="bg-slate-900/40 backdrop-blur-sm rounded-xl p-3 border border-slate-700/30 space-y-3">
-
-                <div className="flex items-center gap-3 group">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500/30 transition-colors">
-                    <span className="text-base"><FaUser /></span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Nome</p>
-                    <p className="text-slate-200 truncate font-medium">{user?.name}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 group">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
-                    <span className="text-base"><MdEmail />
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Email</p>
-                    <p className="text-slate-200 truncate text-xs font-medium">{user?.email}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 group">
-                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
-                    <span className="text-base"><FaShieldAlt />
-</span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Cargo</p>
-                    <span>
-                      {user?.role}
-                    </span>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-
-        </header>
 
         {/* SIDEBAR / PROFILE INFO */}
         <aside className="lg:col-span-4 hidden md:flex flex-col gap-6 overflow-hidden ">
@@ -372,10 +292,10 @@ export default function Home() {
         </aside>
 
         {/* MAIN CHAT AREA */}
-        <section className="lg:col-span-8 flex flex-col h-[80vh] lg:h-[85vh] bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl overflow-hidden">
+        <section className="absolute bottom-0 w-full md:relative lg:col-span-8 flex flex-col h-screen lg:h-[85vh] bg-slate-800/50 backdrop-blur-xl border border-slate-700 md:rounded-3xl shadow-2xl overflow-hidden">
 
           {/* CHAT HEADER */}
-          <header className="p-6 border-b border-slate-700 bg-slate-800/30 flex items-center justify-between">
+          <header className="px-6 py-4 border-b border-slate-700 bg-slate-800/30 flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -384,13 +304,99 @@ export default function Home() {
               <p className="text-slate-400 text-xs">Sinta-se à vontade para escrever</p>
             </div>
 
-            {/* ONLINE USERS */}
-            <div className="flex items-center gap-2 bg-slate-900/50 border border-slate-700 px-4 py-2 rounded-xl">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              <span className="text-sm text-slate-300 font-medium">
-                {onlineUsers.length} <span className="hidden md-flex">online</span>
-              </span>
+            <div className="flex flex-col gap-2">
+
+              <button
+                onClick={logout}
+                className=" cursor-pointer flex md:hidden items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-2 px-1 rounded-xl font-semibold transition-all duration-300 border border-red-500/20 group"
+              >
+                <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              </button>
+
+              {/* ONLINE USERS */}
+              <div className="flex items-center gap-2 bg-slate-900/50 border border-slate-700 px-4 py-2 rounded-xl">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span className="text-sm text-slate-300 font-medium">
+                  {onlineUsers.length} <span className="hidden md-flex">online</span>
+                </span>
+              </div>
+
             </div>
+          </header>
+
+
+          <header className="md:hidden relative bg-slate-800/50 backdrop-blur-2xl border-b border-slate-800/50 shadow-2xl overflow-visible">
+
+            {/* BOTÃO NA BORDA */}
+            <button
+              onClick={() => setOpenHeader(!openHeader)}
+              className="
+      absolute left-1/2 -bottom-3 -translate-x-1/2
+      w-7 h-7 flex items-center justify-center
+      rounded-full bg-indigo-600/20 hover:bg-indigo-600/30
+      border border-indigo-500/30
+      transition-all duration-300
+      hover:shadow-lg hover:shadow-indigo-500/20
+      active:scale-95 z-20
+    "
+            >
+              <BiChevronDown  
+                className={`w-5 h-5 text-indigo-400 transition-transform duration-500 ${openHeader ? "rotate-180" : ""
+                  }`}
+              />
+            </button>
+
+            {/* Conteúdo expansível com animação suave */}
+            <div
+              className={`
+              transition-all duration-500 ease-in-out overflow-hidden border-b border-slate-800
+              ${openHeader ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}
+            `}
+            >
+              <div className="px-4 pb-4 space-y-3 text-sm border-t border-slate-800/50 pt-4">
+
+                {/* Informações do usuário */}
+                <div className="bg-slate-900/40 backdrop-blur-sm rounded-xl p-3 border border-slate-700/30 space-y-3">
+
+                  <div className="flex items-center gap-3 group">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500/30 transition-colors">
+                      <span className="text-base"><FaUser /></span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Nome</p>
+                      <p className="text-slate-200 truncate font-medium">{user?.name}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 group">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                      <span className="text-base"><MdEmail />
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Email</p>
+                      <p className="text-slate-200 truncate text-xs font-medium">{user?.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 group">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+                      <span className="text-base"><FaShieldAlt />
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Cargo</p>
+                      <span>
+                        {user?.role}
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+
           </header>
 
           {/* MESSAGES AREA */}
