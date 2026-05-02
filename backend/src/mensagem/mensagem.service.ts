@@ -14,15 +14,29 @@ export class MensagemService {
         userId,
       },
       include: {
-        usuario: true,
-      },
+        usuario: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          }
+        }
+      }
     })
   }
 
   async findAll() {
     return this.prisma.mensagem.findMany({
       include: {
-        usuario: true,
+        usuario: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          }
+        }
       },
       orderBy: {
         createdAt: 'asc',
@@ -34,8 +48,15 @@ export class MensagemService {
     return this.prisma.mensagem.findUnique({
       where: { id },
       include: {
-        usuario: true,
-      },
+        usuario: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          }
+        }
+      }
     })
   }
 
@@ -44,6 +65,16 @@ export class MensagemService {
       where: { id },
       data: {
         readAt: new Date(),
+      },
+      include: {
+        usuario: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          }
+        }
       }
     })
   }
