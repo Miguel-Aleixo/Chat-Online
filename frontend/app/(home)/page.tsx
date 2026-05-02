@@ -228,7 +228,7 @@ export default function Home() {
   // FEEDBACK
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center text-white gap-4">
+      <main className="h-screen bg-[#0f172a] flex flex-col items-center justify-center text-white gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-indigo-500" />
         <p className="text-slate-400 font-medium animate-pulse">Carregando sua experiência...</p>
       </main>
@@ -236,7 +236,7 @@ export default function Home() {
   }
 
   return (
-    <main className="h-screen md:min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black md:p-8 flex items-center justify-center">
+    <main className=" md:min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black md:p-8 flex items-center justify-center">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {/* SIDEBAR / PROFILE INFO */}
