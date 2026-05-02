@@ -15,6 +15,7 @@ export default function Home() {
   const [text, setText] = useState('');
   const socketRef = useRef<any>(null);
   const [onlineUsers, setOnlineUsers] = useState<number[]>([])
+  const URL = process.env.NEXT_PUBLIC_URL_BACK;
 
   useEffect(() => {
     if (!user) return
@@ -70,10 +71,10 @@ export default function Home() {
       setOnlineUsers(users)
     })
 
-    fetch('http://localhost:5000/mensagem')
+    fetch(`${URL}/mensagem`)
       .then(res => res.json())
       .then(data => {
-        console.log('RETORNO BACK:', data)  
+        console.log('RETORNO BACK:', data)
 
         data.forEach((msg: any) => {
           if (msg.usuario?.id !== user?.id && !msg.readAt) {
