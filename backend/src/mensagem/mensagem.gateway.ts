@@ -12,7 +12,12 @@ import { MensagemService } from './mensagem.service'
 import { CreateMensagemDto } from './dto/create-mensagem.dto'
 import * as jwt from 'jsonwebtoken'
 
-const onlineUsers = new Map<number, Set<string>>()
+type OnlineUser = {
+  name: string
+  sockets: Set<string>
+}
+
+const onlineUsers = new Map<number, OnlineUser>()
 
 @WebSocketGateway({
   cors: {
@@ -46,14 +51,22 @@ export class MensagemGateway implements OnGatewayConnection, OnGatewayDisconnect
 
       if (userId) {
         if (!onlineUsers.has(userId)) {
-          onlineUsers.set(userId, new Set())
+          onlineUsers.set(userId, {
+            name: payload.name,
+            sockets: new Set()
+          })
         }
 
-        onlineUsers.get(userId)?.add(client.id)
+        onlineUsers.get(userId)!.sockets.add(client.id)
       }
 
-      // AVISA TODO MUNDO QUEM TÁ ONLINE
-      this.server.emit('users_online', Array.from(onlineUsers.keys()))
+      this.server.emit(
+        'users_online',
+        Array.from(onlineUsers.entries()).map(([id, data]) => ({
+          id,
+          name: data.name
+        }))
+      )
 
     } catch {
       client.disconnect()
@@ -61,22 +74,25 @@ export class MensagemGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   handleDisconnect(client: Socket) {
-    console.log('🔴 CLIENT DESCONECTOU')
-
     const userId = client.data.user?.sub
 
     if (userId && onlineUsers.has(userId)) {
-      const sockets = onlineUsers.get(userId)
+      const user = onlineUsers.get(userId)!
 
-      sockets?.delete(client.id)
+      user.sockets.delete(client.id)
 
-      if (sockets?.size === 0) {
+      if (user.sockets.size === 0) {
         onlineUsers.delete(userId)
       }
     }
 
-    // ATUALIZA LISTA PRA TODO MUNDO
-    this.server.emit('users_online', Array.from(onlineUsers.keys()))
+    this.server.emit(
+      'users_online',
+      Array.from(onlineUsers.entries()).map(([id, data]) => ({
+        id,
+        name: data.name
+      }))
+    )
   }
 
   @SubscribeMessage('send_message')

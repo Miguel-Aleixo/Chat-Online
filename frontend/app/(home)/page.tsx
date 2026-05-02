@@ -14,6 +14,11 @@ import toast from "react-hot-toast";
 // SOCKET
 import { getSocket } from '../lib/socket'
 
+type OnlineUser = {
+  id: number
+  name: string
+}
+
 export default function Home() {
 
   // NAVEGAÇÃO
@@ -32,7 +37,7 @@ export default function Home() {
   const socketRef = useRef<any>(null);
 
   // LISTA DE USUÁRIOS CONECTADOS
-  const [onlineUsers, setOnlineUsers] = useState<string[]>([])
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([])
 
   // URL DO BACKEND
   const URL = process.env.NEXT_PUBLIC_URL_BACK;
@@ -49,7 +54,7 @@ export default function Home() {
   }, [messages])
 
   // USUARIOS
-  const prevUsersRef = useRef<string[]>([])
+  const prevUsersRef = useRef<OnlineUser[]>([])
 
   // PARA BUSCAR MENSAGENS NO BANCO
   useEffect(() => {
@@ -100,34 +105,38 @@ export default function Home() {
     })
 
     // LISTA DE USUARIOS CONECTADOS
-    socket.on('users_online', (users) => {
+    socket.on('users_online', (users: OnlineUser[]) => {
       const prevUsers = prevUsersRef.current
 
-      // quem entrou
-      const entrou = users.filter((u: string) => !prevUsers.includes(u))
 
-      // quem saiu
-      const saiu = prevUsers.filter((u: string) => !users.includes(u))
+      const entrou = users.filter(
+        (u) => !prevUsers.some(prev => prev.id === u.id)
+      )
 
-      entrou.forEach((u: string) => {
+      const saiu = prevUsers.filter(
+        (u) => !users.some(curr => curr.id === u.id)
+      )
+
+
+      entrou.forEach((u) => {
         setMessages((prev) => [
           ...prev,
           {
-            id: `join-${u}-${Date.now()}`,
+            id: `join-${u.id}-${Date.now()}`,
             system: true,
-            text: `🟢 ${u} entrou no chat`,
+            text: `${u.name} entrou no chat`,
             createdAt: new Date().toISOString(),
           }
         ])
       })
 
-      saiu.forEach((u: string) => {
+      saiu.forEach((u) => {
         setMessages((prev) => [
           ...prev,
           {
-            id: `leave-${u}-${Date.now()}`,
+            id: `leave-${u.id}-${Date.now()}`,
             system: true,
-            text: `🔴 ${u} saiu do chat`,
+            text: `${u.name} saiu do chat`,
             createdAt: new Date().toISOString(),
           }
         ])
@@ -221,6 +230,8 @@ export default function Home() {
     );
   }
 
+  console.log(onlineUsers);
+
   return (
     <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black p-4 md:p-8 flex items-center justify-center">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -294,7 +305,7 @@ export default function Home() {
             <div className="flex items-center gap-2 bg-slate-900/50 border border-slate-700 px-4 py-2 rounded-xl">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               <span className="text-sm text-slate-300 font-medium">
-                {onlineUsers.length} online
+                {onlineUsers.length} <span className="hidden md-flex">online</span>
               </span>
             </div>
           </header>
@@ -345,7 +356,7 @@ export default function Home() {
                   ${msg.usuario?.email === user?.email
                       ? 'rounded-tr-none border-indigo-500/20'
                       : 'rounded-tl border-slate-600 text-slate-400'
-                      }`}>
+                    }`}>
                     <span className="relative top-px">
 
                       {msg.usuario?.role}

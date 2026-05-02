@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateMensagemDto } from './dto/create-mensagem.dto'
-import { UpdateMensagemDto } from './dto/update-mensagem.dto'
 
 @Injectable()
 export class MensagemService {
