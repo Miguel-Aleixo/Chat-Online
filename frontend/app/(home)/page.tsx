@@ -294,7 +294,7 @@ export default function Home() {
         </aside>
 
         {/* MAIN CHAT AREA */}
-        <section className="absolute bottom-0 w-full md:relative lg:col-span-8 flex flex-col h-screen lg:h-[85vh] bg-slate-800/50 backdrop-blur-xl border border-slate-700 md:rounded-3xl shadow-2xl overflow-hidden">
+        <section className="w-full lg:col-span-8 flex flex-col h-[100dvh] lg:h-[85vh] bg-slate-800/50 backdrop-blur-xl border border-slate-700 md:rounded-3xl shadow-2xl overflow-hidden">
 
           {/* CHAT HEADER */}
           <header className="px-6 py-4 border-b border-slate-700 bg-slate-800/30 flex items-center justify-between">
@@ -327,8 +327,7 @@ export default function Home() {
           </header>
 
 
-          <header className="md:hidden relative bg-slate-800/50 backdrop-blur-2xl border-b border-slate-800/50 shadow-2xl overflow-visible">
-
+          <header className="md:hidden relative shrink-0 bg-slate-800/50 backdrop-blur-2xl border-b border-slate-800/50 shadow-2xl overflow-visible">
             {/* BOTÃO NA BORDA */}
             <button
               onClick={() => setOpenHeader(!openHeader)}
@@ -402,8 +401,7 @@ export default function Home() {
           </header>
 
           {/* MESSAGES AREA */}
-          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
-
+          <div className="flex-1 overflow-y-auto p-6 pt-20 md:pt-6 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
             {messages.map((msg, i) => {
               console.log('USER LOGADO:', user?.email)
               console.log('MSG:', msg.usuario?.email)
