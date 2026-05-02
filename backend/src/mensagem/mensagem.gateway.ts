@@ -97,7 +97,6 @@ export class MensagemGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     this.server.emit('new_message', message)
 
-    return message
   }
 
   @SubscribeMessage('message_read')
