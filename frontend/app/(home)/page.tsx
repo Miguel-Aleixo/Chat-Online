@@ -236,7 +236,7 @@ export default function Home() {
   }
 
   console.log(onlineUsers);
-  
+
   return (
     <main className="md:min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black md:p-8 flex items-center justify-center">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -342,7 +342,7 @@ export default function Home() {
       active:scale-95 z-20
     "
             >
-              <BiChevronDown  
+              <BiChevronDown
                 className={`w-5 h-5 text-indigo-400 transition-transform duration-500 ${openHeader ? "rotate-180" : ""
                   }`}
               />
@@ -431,9 +431,9 @@ export default function Home() {
 
                   <div className="flex items-center gap-2 mb-1">
                     <span
-                      className={`w-2 h-2 rounded-full ${onlineUsers.includes(msg.usuario?.id)
-                        ? 'bg-green-500'
-                        : 'bg-gray-500'
+                      className={`w-2 h-2 rounded-full ${onlineUsers.some((user) => user.id === msg.usuario?.id)
+                          ? 'bg-green-500'
+                          : 'bg-gray-500'
                         }`}
                     />
 
