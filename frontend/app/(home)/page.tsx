@@ -61,9 +61,10 @@ export default function Home() {
     scrollToBottom()
   }, [messages])
 
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
   const chunksRef = useRef<BlobPart[]>([])
   const [isRecording, setIsRecording] = useState(false)
+  const [recordTime, setRecordTime] = useState(0)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const recorderRef = useRef<MediaRecorder | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -73,8 +74,6 @@ export default function Home() {
     if (isRecordingRef.current) return
 
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-
-    console.log("STREAM ABERTO:", stream.getTracks())
 
     streamRef.current = stream
 
@@ -90,16 +89,34 @@ export default function Home() {
     }
 
     recorder.start()
+
     isRecordingRef.current = true
+    setIsRecording(true)
+
+    intervalRef.current = setInterval(() => {
+      setRecordTime((prev) => {
+        if (prev >= 10) {
+          stopRecording()
+          return 0
+        }
+        return prev + 1
+      })
+    }, 1000)
   }
 
   const stopRecording = async () => {
     const recorder = recorderRef.current
     const stream = streamRef.current
 
-    if (!recorder || !stream) return
+    if (!recorder || !stream || !isRecordingRef.current) return
 
-    recorder.stop()
+    isRecordingRef.current = false
+    setIsRecording(false)
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
 
     recorder.onstop = async () => {
       const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" })
@@ -121,21 +138,14 @@ export default function Home() {
       })
 
       chunksRef.current = []
-
-      // 🔥 ISSO AQUI É O QUE RESOLVE SEU PROBLEMA
-      stream.getTracks().forEach(track => {
-        track.stop()
-        track.enabled = false
-      })
-
-      streamRef.current = null
-      recorderRef.current = null
-      isRecordingRef.current = false
-
-      console.log("STREAM FECHADO")
     }
-  }
 
+    recorder.stop()
+    stream.getTracks().forEach(track => track.stop())
+
+    streamRef.current = null
+    recorderRef.current = null
+  }
   const [editando, setEditando] = useState(false)
   const [msgIdEditando, setMsgIdEditando] = useState<number | null>(null)
 
@@ -316,6 +326,7 @@ export default function Home() {
   // MANDAR MENSAGEM
   const sendMessage = () => {
     if (!text.trim()) return
+    if (text.length > 50) return
 
     const socket = socketRef.current
 
@@ -637,56 +648,20 @@ export default function Home() {
                     >
                       <span className="block">
                         {msg.type === "audio" ? (
-                          <div className="flex items-center gap-3 bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 w-full max-w-xs">
 
-                            {/* botão play simples */}
-                            <button
-                              onClick={(e) => {
-                                const audio = (e.currentTarget.nextSibling as HTMLAudioElement)
-                                if (audio.paused) {
-                                  audio.play()
-                                } else {
-                                  audio.pause()
-                                }
-                              }}
-                              className="w-9 h-9 flex items-center justify-center rounded-full bg-indigo-600 hover:bg-indigo-500 transition"
-                            >
-                              ▶
-                            </button>
+                          <audio
+                            src={msg.fileUrl}
+                            controls
+                            onPlay={(e) => {
+                              const parent = e.currentTarget.parentElement
+                              parent?.setAttribute("data-playing", "true")
+                            }}
+                            onPause={(e) => {
+                              const parent = e.currentTarget.parentElement
+                              parent?.setAttribute("data-playing", "false")
+                            }}
+                          />
 
-                            {/* audio oculto */}
-                            <audio
-                              src={msg.fileUrl}
-                              className="hidden"
-                              onPlay={(e) => {
-                                const parent = e.currentTarget.parentElement
-                                parent?.setAttribute("data-playing", "true")
-                              }}
-                              onPause={(e) => {
-                                const parent = e.currentTarget.parentElement
-                                parent?.setAttribute("data-playing", "false")
-                              }}
-                            />
-
-                            {/* visual fake da wave */}
-                            <div className="flex items-center gap-[2px] flex-1">
-                              {Array.from({ length: 18 }).map((_, i) => (
-                                <div
-                                  key={i}
-                                  className="w-[2px] bg-indigo-400/60 rounded-full animate-pulse"
-                                  style={{
-                                    height: `${6 + (i % 6) * 2}px`,
-                                    animationDelay: `${i * 0.05}s`,
-                                  }}
-                                />
-                              ))}
-                            </div>
-
-                            {/* tempo fake (pode depois calcular duração real) */}
-                            <span className="text-[10px] text-slate-400">
-                              áudio
-                            </span>
-                          </div>
                         ) : (
                           <span>{msg.text}</span>
                         )}
@@ -710,7 +685,7 @@ export default function Home() {
 
                     <div className="flex w-full justify-end gap-1">
 
-                      <div className={`relative bottom-3 ${canEdit ? 'hidden' : ''} ${msg.usuario.email === user!.email ?
+                      <div className={`relative bottom-3 ${msg.type === 'audio' ? 'hidden' : ''} ${canEdit ? 'hidden' : ''} ${msg.usuario.email === user!.email ?
                         '' :
                         'hidden'
                         }`}>
@@ -767,58 +742,93 @@ export default function Home() {
 
           {/* INPUT AREA */}
           <footer className="p-6 bg-slate-800/30 border-t border-slate-700">
+
             <div className="relative flex items-center gap-3">
+
+              {isRecording && (
+                <div className="absolute top-4 left-2 flex items-center gap-2 bg-red-500/10 px-3 py-1 rounded-full">
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+
+                  <span className={`text-xs font-medium ${recordTime >= 10 - 10 ? "text-red-400 animate-pulse" : "text-red-300"
+                    }`}>
+                    Gravando {recordTime}s / {10}s
+                  </span>
+                </div>
+              )}
+
               <textarea
                 value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
+                onChange={(e) => {
 
-                    if (editando) {
-                      console.log('editando msg');
-                      editarMsg();
-                    } else {
-                      console.log('mandando msg');
-                      sendMessage();
-                    }
+                  const value = e.target.value
+
+                  if (value.length <= 50) {
+                    setText(value)
                   }
+
                 }}
                 rows={1}
-                placeholder="Digite sua mensagem..."
-                className="flex-1 bg-slate-900/80 border border-slate-700 text-slate-200 p-4 pr-14 rounded-2xl outline-none resize-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder:text-slate-600"
+                placeholder={isRecording ? "" : "Digite sua mensagem..."}
+                className={`flex-1 p-4 pr-14 rounded-2xl outline-none resize-none transition-all
+      ${isRecording
+                    ? "bg-red-500/10 border border-red-500/40 text-red-100"
+                    : "bg-slate-900/80 border border-slate-700 text-slate-200"
+                  }`
+                }
               />
 
-              <div className="flex gap-2">
+              <span className="relative text-xs right-10">{(50 - text.length) === 50 ? '' : (50 - text.length)}</span>
 
-                <button
-                  onClick={() => {
-                    if (editando) {
-                      console.log('editando msg');
-                      editarMsg();
+              <button
+                onMouseDown={(e) => {
+                  if ('ontouchstart' in window) return
+                  startRecording()
+                }}
+                onMouseUp={(e) => {
+                  if ('ontouchstart' in window) return
+                  stopRecording()
+                }}
+                onMouseLeave={(e) => {
+                  if ('ontouchstart' in window) return
+                  stopRecording()
+                }}
 
-                    } else {
-                      console.log('mandando msg');
-                      sendMessage();
-                    }
+                onTouchStart={(e) => {
+                  e.preventDefault() // 🔥 evita duplicação com mouse
+                  startRecording()
+                }}
+
+                onTouchEnd={(e) => {
+                  e.preventDefault()
+                  stopRecording()
+                }}
+
+                className={`p-3 rounded-xl cursor-pointer transition-all shadow-lg active:scale-95
+    ${isRecording
+                    ? "bg-red-500 shadow-red-500/30 animate-pulse"
+                    : "bg-red-600 hover:bg-red-500"
+                  }`}
+              >
+                <AiFillAudio className="w-5 h-5 text-white" />
+              </button>
+
+              <button
+                onClick={() => {
+                  if (editando) {
+                    editarMsg();
+
+                  } else {
+                    sendMessage();
                   }
-                  }
-                  className=" cursor-pointer right-2 p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 group">
-                  <Send className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </button>
-
-                <button
-                  onMouseDown={startRecording}
-                  onMouseUp={stopRecording}
-                  onClick={isRecording ? stopRecording : startRecording}
-                  onTouchStart={startRecording}
-                  onTouchEnd={stopRecording}
-                  className=" cursor-pointer right-2 p-3 bg-red-600 hover:bg-red-500 text-white rounded-xl transition-all shadow-lg shadow-red-500/20 active:scale-95 group">
-                  <AiFillAudio className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </button>
-              </div>
+                }
+                }
+                className=" cursor-pointer right-2 p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 group">
+                <Send className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </button>
 
             </div>
+
+
           </footer>
 
         </section>
