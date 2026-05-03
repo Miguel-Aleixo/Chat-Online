@@ -656,7 +656,7 @@ export default function Home() {
                           <audio
                             src={msg.fileUrl}
                             controls
-                            className="w-full  accent-indigo-500"
+                            className=" accent-indigo-500"
                           />
 
 
