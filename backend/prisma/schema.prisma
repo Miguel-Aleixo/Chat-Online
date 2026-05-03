@@ -23,9 +23,11 @@ model usuario {
 
 model mensagem {
   id        Int      @id @default(autoincrement())
-  text      String
+  text      String?
   userId    Int
   usuario   usuario  @relation(fields: [userId], references: [id])
+  fileUrl   String?  // áudio/imagem/etc
+  type      String   @default("text") // text | audio | image
   isEdited  Boolean  @default(false)
   createdAt DateTime @default(now())
   readAt DateTime?  

@@ -6,10 +6,19 @@ import { CreateMensagemDto } from './dto/create-mensagem.dto'
 export class MensagemService {
   constructor(private prisma: PrismaService) { }
 
-  async create(dto: CreateMensagemDto, userId: number) {
+  async create(
+    dto: {
+      text?: string
+      fileUrl?: string
+      type: 'text' | 'audio' | 'image'
+    },
+    userId: number,
+  ) {
     return this.prisma.mensagem.create({
       data: {
-        text: dto.text,
+        text: dto.text ?? '',
+        fileUrl: dto.fileUrl ?? null,
+        type: dto.type ?? 'text',
         userId,
       },
       include: {
@@ -19,9 +28,9 @@ export class MensagemService {
             name: true,
             email: true,
             role: true,
-          }
-        }
-      }
+          },
+        },
+      },
     })
   }
 

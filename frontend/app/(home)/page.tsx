@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react'
 import { LogOut, Send, User, MessageSquare, Loader2 } from "lucide-react";
 import { MdModeEdit } from "react-icons/md";
 import { FaRegTrashAlt } from "react-icons/fa";
+import { AiFillAudio } from "react-icons/ai";
 
 // TOAST
 import toast from "react-hot-toast";
@@ -59,6 +60,81 @@ export default function Home() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
+  const chunksRef = useRef<BlobPart[]>([])
+  const [isRecording, setIsRecording] = useState(false)
+
+  const recorderRef = useRef<MediaRecorder | null>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+  const isRecordingRef = useRef(false)
+
+  const startRecording = async () => {
+    if (isRecordingRef.current) return
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+
+    console.log("STREAM ABERTO:", stream.getTracks())
+
+    streamRef.current = stream
+
+    const recorder = new MediaRecorder(stream)
+    recorderRef.current = recorder
+
+    chunksRef.current = []
+
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        chunksRef.current.push(e.data)
+      }
+    }
+
+    recorder.start()
+    isRecordingRef.current = true
+  }
+
+  const stopRecording = async () => {
+    const recorder = recorderRef.current
+    const stream = streamRef.current
+
+    if (!recorder || !stream) return
+
+    recorder.stop()
+
+    recorder.onstop = async () => {
+      const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" })
+
+      const formData = new FormData()
+      formData.append("file", audioBlob, "audio.webm")
+
+      const res = await fetch(`${URL}/mensagem/upload/audio`, {
+        method: "POST",
+        body: formData
+      })
+
+      const { url } = await res.json()
+
+      socketRef.current.emit("send_message", {
+        type: "audio",
+        fileUrl: url,
+        text: ""
+      })
+
+      chunksRef.current = []
+
+      // 🔥 ISSO AQUI É O QUE RESOLVE SEU PROBLEMA
+      stream.getTracks().forEach(track => {
+        track.stop()
+        track.enabled = false
+      })
+
+      streamRef.current = null
+      recorderRef.current = null
+      isRecordingRef.current = false
+
+      console.log("STREAM FECHADO")
+    }
+  }
 
   const [editando, setEditando] = useState(false)
   const [msgIdEditando, setMsgIdEditando] = useState<number | null>(null)
@@ -250,6 +326,7 @@ export default function Home() {
 
     socket.emit('send_message', {
       text,
+      type: "text"
     })
 
     setText('')
@@ -559,7 +636,60 @@ export default function Home() {
                         }`}
                     >
                       <span className="block">
-                        {msg.text}
+                        {msg.type === "audio" ? (
+                          <div className="flex items-center gap-3 bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 w-full max-w-xs">
+
+                            {/* botão play simples */}
+                            <button
+                              onClick={(e) => {
+                                const audio = (e.currentTarget.nextSibling as HTMLAudioElement)
+                                if (audio.paused) {
+                                  audio.play()
+                                } else {
+                                  audio.pause()
+                                }
+                              }}
+                              className="w-9 h-9 flex items-center justify-center rounded-full bg-indigo-600 hover:bg-indigo-500 transition"
+                            >
+                              ▶
+                            </button>
+
+                            {/* audio oculto */}
+                            <audio
+                              src={msg.fileUrl}
+                              className="hidden"
+                              onPlay={(e) => {
+                                const parent = e.currentTarget.parentElement
+                                parent?.setAttribute("data-playing", "true")
+                              }}
+                              onPause={(e) => {
+                                const parent = e.currentTarget.parentElement
+                                parent?.setAttribute("data-playing", "false")
+                              }}
+                            />
+
+                            {/* visual fake da wave */}
+                            <div className="flex items-center gap-[2px] flex-1">
+                              {Array.from({ length: 18 }).map((_, i) => (
+                                <div
+                                  key={i}
+                                  className="w-[2px] bg-indigo-400/60 rounded-full animate-pulse"
+                                  style={{
+                                    height: `${6 + (i % 6) * 2}px`,
+                                    animationDelay: `${i * 0.05}s`,
+                                  }}
+                                />
+                              ))}
+                            </div>
+
+                            {/* tempo fake (pode depois calcular duração real) */}
+                            <span className="text-[10px] text-slate-400">
+                              áudio
+                            </span>
+                          </div>
+                        ) : (
+                          <span>{msg.text}</span>
+                        )}
                       </span>
 
                       <div className="flex justify-end items-center gap-1 mt-1 text-[10px] opacity-70">
@@ -658,21 +788,36 @@ export default function Home() {
                 placeholder="Digite sua mensagem..."
                 className="flex-1 bg-slate-900/80 border border-slate-700 text-slate-200 p-4 pr-14 rounded-2xl outline-none resize-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder:text-slate-600"
               />
-              <button
-                onClick={() => {
-                  if (editando) {
-                    console.log('editando msg');
-                    editarMsg();
 
-                  } else {
-                    console.log('mandando msg');
-                    sendMessage();
+              <div className="flex gap-2">
+
+                <button
+                  onClick={() => {
+                    if (editando) {
+                      console.log('editando msg');
+                      editarMsg();
+
+                    } else {
+                      console.log('mandando msg');
+                      sendMessage();
+                    }
                   }
-                }
-                }
-                className="absolute cursor-pointer right-2 p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 group">
-                <Send className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </button>
+                  }
+                  className=" cursor-pointer right-2 p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 group">
+                  <Send className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </button>
+
+                <button
+                  onMouseDown={startRecording}
+                  onMouseUp={stopRecording}
+                  onClick={isRecording ? stopRecording : startRecording}
+                  onTouchStart={startRecording}
+                  onTouchEnd={stopRecording}
+                  className=" cursor-pointer right-2 p-3 bg-red-600 hover:bg-red-500 text-white rounded-xl transition-all shadow-lg shadow-red-500/20 active:scale-95 group">
+                  <AiFillAudio className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </button>
+              </div>
+
             </div>
           </footer>
 

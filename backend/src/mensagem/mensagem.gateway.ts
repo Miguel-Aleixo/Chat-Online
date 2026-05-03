@@ -96,7 +96,7 @@ export class MensagemGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('send_message')
-  async handleMessage(@MessageBody() dto: CreateMensagemDto, @ConnectedSocket() client: Socket) {
+  async handleMessage(@MessageBody() dto: any, @ConnectedSocket() client: Socket) {
     console.log('DTO RECEBIDO:', dto)
     console.log('USER:', client.data.user)
 
