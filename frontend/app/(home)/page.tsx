@@ -651,23 +651,14 @@ export default function Home() {
                       <span className="block">
                         {msg.type === "audio" ? (
 
-                          <div className="flex items-center gap-3 bg-linear-to-r from-indigo-600/10 to-slate-800/40 border border-slate-700 rounded-2xl p-3 w-full">
 
-                            {/* animação de “wave” fake */}
-                            <div className="flex gap-0.5 items-end h-6">
-                              <span className="w-1 h-3 bg-indigo-400 animate-pulse"></span>
-                              <span className="w-1 h-5 bg-indigo-400 animate-pulse delay-75"></span>
-                              <span className="w-1 h-2 bg-indigo-400 animate-pulse delay-150"></span>
-                              <span className="w-1 h-4 bg-indigo-400 animate-pulse delay-200"></span>
-                            </div>
 
-                            <audio
-                              src={msg.fileUrl}
-                              controls
-                              className="w-full h-8 accent-indigo-500"
-                            />
+                          <audio
+                            src={msg.fileUrl}
+                            controls
+                            className="w-full h-8 accent-indigo-500"
+                          />
 
-                          </div>
 
                         ) : (
                           <span>{msg.text}</span>
