@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from 'react'
 
 // ICONES
 import { LogOut, Send, User, MessageSquare, Loader2 } from "lucide-react";
+import { MdModeEdit } from "react-icons/md";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 // TOAST
 import toast from "react-hot-toast";
@@ -58,6 +60,49 @@ export default function Home() {
     scrollToBottom()
   }, [messages])
 
+  const [editando, setEditando] = useState(false)
+  const [msgIdEditando, setMsgIdEditando] = useState<number | null>(null)
+
+  const editarMsg = async () => {
+
+    const socket = socketRef.current
+
+    if (!socket || !socket.connected) {
+      console.log('⛔ socket não conectado')
+      return
+    }
+
+    socket.emit('update_message', {
+      id: msgIdEditando,
+      text: text
+    })
+
+    setEditando(false);
+    setText('');
+    setMsgIdEditando(null);
+
+  }
+
+  const [excluindo, setExcluindo] = useState(false);
+  const [msgIdExcluindo, setMsgIdExcluindo] = useState<number | null>(null);
+  const deletarMsg = async () => {
+
+    const socket = socketRef.current
+
+    if (!socket || !socket.connected) {
+      console.log('⛔ socket não conectado')
+      return
+    }
+
+    if (!msgIdExcluindo) return
+
+    socket.emit('delete_message', {
+      id: msgIdExcluindo
+    })
+
+    setExcluindo(false);
+  }
+
   // USUARIOS
   const prevUsersRef = useRef<OnlineUser[]>([])
 
@@ -104,9 +149,18 @@ export default function Home() {
         return [...prev, msg]
       })
 
-      if (msg.usuario?.id !== user?.id && !msg.readAt) {
-        socket.emit('message_read', msg.id)
-      }
+    })
+
+    socket.on('message_updated', (msg) => {
+      setMessages((prev) =>
+        prev.map(m =>
+          m.id === msg.id ? msg : m
+        )
+      )
+    })
+
+    socket.on('message_deleted', ({ id }) => {
+      setMessages(prev => prev.filter(m => m.id !== id));
     })
 
     // LISTA DE USUARIOS CONECTADOS
@@ -235,11 +289,48 @@ export default function Home() {
     );
   }
 
-  console.log(onlineUsers);
-
   return (
     <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black md:p-8 flex items-center justify-center">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        {excluindo && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+
+            {/* overlay */}
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setExcluindo(false)}
+            />
+
+            {/* modal */}
+            <div className="relative w-[90%] max-w-md bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 animate-in fade-in zoom-in-95">
+
+              <h1 className="text-white text-lg font-semibold text-center">
+                Deseja realmente excluir essa mensagem?
+              </h1>
+
+              <p className="text-slate-400 text-sm text-center mt-2">
+                Essa ação não pode ser desfeita.
+              </p>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={deletarMsg}
+                  className="flex-1 cursor-pointer py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-medium transition-all active:scale-95"
+                >
+                  Sim, excluir
+                </button>
+
+                <button
+                  onClick={() => setExcluindo(false)}
+                  className="flex-1 cursor-pointer py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-medium transition-all active:scale-95"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* SIDEBAR / PROFILE INFO */}
         <aside className="lg:col-span-4 hidden md:flex flex-col gap-6 overflow-hidden ">
@@ -406,6 +497,12 @@ export default function Home() {
               console.log('USER LOGADO:', user?.email)
               console.log('MSG:', msg.usuario?.email)
 
+              const TEN_MINUTES = 10 * 60 * 1000
+
+              const createdAt = new Date(msg.createdAt).getTime()
+
+              const canEdit = (Date.now() - createdAt > TEN_MINUTES)
+
               if (msg.system) {
                 return (
                   <div
@@ -466,6 +563,11 @@ export default function Home() {
                       </span>
 
                       <div className="flex justify-end items-center gap-1 mt-1 text-[10px] opacity-70">
+
+                        <span className={`${msg.isEdited ? '' : 'hidden'}`}>
+                          Editada
+                        </span>
+
                         <span>
                           {new Date(msg.createdAt).toLocaleTimeString('pt-BR', {
                             hour: '2-digit',
@@ -474,6 +576,54 @@ export default function Home() {
                         </span>
 
                       </div>
+                    </div>
+
+                    <div className="flex w-full justify-end gap-1">
+
+                      <div className={`relative bottom-3 ${canEdit ? 'hidden' : ''} ${msg.usuario.email === user!.email ?
+                        '' :
+                        'hidden'
+                        }`}>
+                        <MdModeEdit onClick={() => {
+
+                          if (editando == true) {
+
+                            setEditando(false)
+                            setMsgIdEditando(null)
+                            setText('');
+                          } else {
+
+                            setEditando(true);
+                            setMsgIdEditando(msg.id)
+                            setText(msg.text);
+                          }
+                        }} className="w-5 h-5 p-1 rounded-full bg-indigo-600/20 hover:bg-indigo-600/30
+      border border-indigo-500/30
+      transition-all duration-300
+      hover:shadow-lg hover:shadow-indigo-500/20
+      active:scale-95 z-20 cursor-pointer" />
+                      </div>
+
+                      <div className={`relative bottom-3 ${canEdit ? 'hidden' : ''} ${msg.usuario.email === user!.email ?
+                        '' :
+                        'hidden'
+                        }`}>
+                        <FaRegTrashAlt onClick={() => {
+
+                          if (excluindo == true) {
+                            setExcluindo(false)
+                          } else {
+                            setMsgIdExcluindo(msg.id)
+                            setExcluindo(true)
+                          }
+
+                        }} className="w-5 h-5 p-1 rounded-full bg-red-600/20 hover:bg-red-600/30
+      border border-red-500/30
+      transition-all duration-300 text-red-600/70
+      hover:shadow-lg hover:shadow-indigo-500/20
+      active:scale-95 z-20 cursor-pointer" />
+                      </div>
+
                     </div>
 
                   </div>
@@ -494,7 +644,14 @@ export default function Home() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault()
-                    sendMessage()
+
+                    if (editando) {
+                      console.log('editando msg');
+                      editarMsg();
+                    } else {
+                      console.log('mandando msg');
+                      sendMessage();
+                    }
                   }
                 }}
                 rows={1}
@@ -502,7 +659,17 @@ export default function Home() {
                 className="flex-1 bg-slate-900/80 border border-slate-700 text-slate-200 p-4 pr-14 rounded-2xl outline-none resize-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder:text-slate-600"
               />
               <button
-                onClick={sendMessage}
+                onClick={() => {
+                  if (editando) {
+                    console.log('editando msg');
+                    editarMsg();
+
+                  } else {
+                    console.log('mandando msg');
+                    sendMessage();
+                  }
+                }
+                }
                 className="absolute cursor-pointer right-2 p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 group">
                 <Send className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </button>

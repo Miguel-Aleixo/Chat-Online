@@ -59,6 +59,35 @@ export class MensagemService {
     })
   }
 
+  async update(id: number, text: string, userId: number) {
+    const msg = await this.prisma.mensagem.findUnique({
+      where: { id: Number(id) },
+    })
+
+    if (!msg) {
+      throw new Error('Mensagem não existe')
+    }
+
+    if (msg.userId !== userId) {
+      throw new Error('Sem permissão para editar essa mensagem')
+    }
+
+    return this.prisma.mensagem.update({
+      where: { id: Number(id) },
+      data: { text, isEdited: true },
+      include: {
+        usuario: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    })
+  }
+
   async remove(id: number) {
     return this.prisma.mensagem.delete({
       where: { id },

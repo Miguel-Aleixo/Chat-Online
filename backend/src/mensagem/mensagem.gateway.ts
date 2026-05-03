@@ -114,4 +114,46 @@ export class MensagemGateway implements OnGatewayConnection, OnGatewayDisconnect
     this.server.emit('new_message', message)
 
   }
+
+  @SubscribeMessage('update_message')
+  async editMessage(@MessageBody() data: { id: number, text: string }, @ConnectedSocket() client: Socket) {
+
+    const userId = client.data.user?.sub
+
+    if (!data.id || !data.text) {
+      return
+    }
+
+    if (!userId) {
+      return
+    }
+
+    const message = await this.mensagemService.update(data.id, data.text, userId)
+
+    console.log('MENSAGEM ATUALIZADA:', message)
+
+    this.server.emit('message_updated', message)
+
+  }
+
+  @SubscribeMessage('delete_message')
+  async deleteMessage(@MessageBody() data: { id: number }, @ConnectedSocket() client: Socket) {
+
+    const userId = client.data.user?.sub
+
+    if (!data.id) {
+      return
+    }
+
+    if (!userId) {
+      return
+    }
+
+    const message = await this.mensagemService.remove(data.id)
+
+    console.log('MENSAGEM DELETADA:', message)
+
+    this.server.emit('message_deleted', message)
+
+  }
 }

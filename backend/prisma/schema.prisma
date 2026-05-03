@@ -26,6 +26,7 @@ model mensagem {
   text      String
   userId    Int
   usuario   usuario  @relation(fields: [userId], references: [id])
+  isEdited  Boolean  @default(false)
   createdAt DateTime @default(now())
   readAt DateTime?  
 }
