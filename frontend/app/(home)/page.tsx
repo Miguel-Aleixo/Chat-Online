@@ -583,7 +583,7 @@ export default function Home() {
           <div className="flex-1 overflow-y-auto p-6 pt-20 md:pt-6 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
             {messages.map((msg, i) => {
 
-              if(msg.type === 'audio') {
+              if (msg.type === 'audio') {
                 console.log(msg.fileUrl);
               }
 
@@ -651,18 +651,23 @@ export default function Home() {
                       <span className="block">
                         {msg.type === "audio" ? (
 
-                          <audio
-                            src={msg.fileUrl}
-                            controls
-                            onPlay={(e) => {
-                              const parent = e.currentTarget.parentElement
-                              parent?.setAttribute("data-playing", "true")
-                            }}
-                            onPause={(e) => {
-                              const parent = e.currentTarget.parentElement
-                              parent?.setAttribute("data-playing", "false")
-                            }}
-                          />
+                          <div className="flex items-center gap-3 bg-linear-to-r from-indigo-600/10 to-slate-800/40 border border-slate-700 rounded-2xl p-3 w-full">
+
+                            {/* animação de “wave” fake */}
+                            <div className="flex gap-0.5 items-end h-6">
+                              <span className="w-1 h-3 bg-indigo-400 animate-pulse"></span>
+                              <span className="w-1 h-5 bg-indigo-400 animate-pulse delay-75"></span>
+                              <span className="w-1 h-2 bg-indigo-400 animate-pulse delay-150"></span>
+                              <span className="w-1 h-4 bg-indigo-400 animate-pulse delay-200"></span>
+                            </div>
+
+                            <audio
+                              src={msg.fileUrl}
+                              controls
+                              className="w-full h-8 accent-indigo-500"
+                            />
+
+                          </div>
 
                         ) : (
                           <span>{msg.text}</span>
@@ -771,7 +776,7 @@ export default function Home() {
                 }}
                 rows={1}
                 placeholder={isRecording ? "" : "Digite sua mensagem..."}
-                className={`flex-1 p-4 pr-14 rounded-2xl outline-none resize-none transition-all
+                className={`flex-1 p-4 pr-14 text-xs md:text-sm rounded-2xl outline-none resize-none transition-all
       ${isRecording
                     ? "bg-red-500/10 border border-red-500/40 text-red-100"
                     : "bg-slate-900/80 border border-slate-700 text-slate-200"
