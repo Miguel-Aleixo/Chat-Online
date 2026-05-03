@@ -582,8 +582,10 @@ export default function Home() {
           {/* MESSAGES AREA */}
           <div className="flex-1 overflow-y-auto p-6 pt-20 md:pt-6 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
             {messages.map((msg, i) => {
-              console.log('USER LOGADO:', user?.email)
-              console.log('MSG:', msg.usuario?.email)
+
+              if(msg.type === 'audio') {
+                console.log(msg.fileUrl);
+              }
 
               const TEN_MINUTES = 10 * 60 * 1000
 
