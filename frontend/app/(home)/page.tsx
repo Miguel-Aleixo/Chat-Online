@@ -765,11 +765,17 @@ export default function Home() {
 
               <textarea
                 value={text}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
                 onChange={(e) => {
 
                   const value = e.target.value
 
-                  if (value.length <= 50) {
+                  if (value.length <= 200) {
                     setText(value)
                   }
 
@@ -784,7 +790,7 @@ export default function Home() {
                 }
               />
 
-              <span className="relative text-xs right-10">{(50 - text.length) === 50 ? '' : (50 - text.length)}</span>
+              <span className="relative text-xs right-10">{(50 - text.length) === 200 ? '' : (200 - text.length)}</span>
 
               <button
                 onMouseDown={(e) => {
@@ -801,7 +807,7 @@ export default function Home() {
                 }}
 
                 onTouchStart={(e) => {
-                  e.preventDefault() // 🔥 evita duplicação com mouse
+                  e.preventDefault()
                   startRecording()
                 }}
 

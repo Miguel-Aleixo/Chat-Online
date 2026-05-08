@@ -10,6 +10,7 @@ import { FaChrome, FaGithub } from "react-icons/fa"
 
 // TOAST
 import toast from "react-hot-toast"
+import Image from "next/image"
 
 export default function Login() {
 
@@ -76,29 +77,29 @@ export default function Login() {
     }
 
     return (
-        <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black flex items-center justify-center px-4 py-6 relative overflow-hidden">
+        <main className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-900 to-black flex items-center justify-between relative overflow-hidden">
 
-            {/* BACKGROUND */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px]"></div>
-                <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px]"></div>
-            </div>
+            <div className="md:w-[50vw] flex flex-col justify-center w-full relative h-screen md:bg-slate-800/40 backdrop-blur-2xl p-6 md:p-8  md:shadow-2xl">
 
-            <div className="w-full max-w-100 relative">
                 {/* CARD */}
-                <div className="md:bg-slate-800/40 backdrop-blur-2xl md:border border-slate-700/50 p-6 md:p-8 md:rounded-4xl md:shadow-2xl">
+                <div className="px-20">
 
                     {/* HEADER */}
-                    <div className="text-center mb-6">
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/20 mb-3 rotate-3">
+                    <div className="text-center md:text-left mb-6">
+                        <div className="md:hidden inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/20 mb-3 rotate-3">
                             <Lock className="w-6 h-6 text-white" />
                         </div>
-                        <h1 className="text-2xl font-bold text-white tracking-tight">Bem-vindo</h1>
-                        <p className="text-slate-400 text-sm mt-1">Acesse sua conta</p>
+                        <div className="flex justify-between">
+                            <div>
+                                <h1 className="text-2xl font-bold text-white tracking-tight">Bem-vindo</h1>
+                                <p className="text-slate-400 text-sm mt-1">Acesse sua conta</p>
+                            </div>
+
+                        </div>
                     </div>
 
                     {/* FORM */}
-                    <form onSubmit={login} className="flex flex-col gap-4">
+                    <form onSubmit={login} className="flex flex-col gap-4 w-full ">
 
                         {/* EMAIL */}
                         <div className="flex flex-col gap-1.5">
@@ -194,6 +195,12 @@ export default function Login() {
                 <p className="text-center text-slate-600 text-[9px] mt-6 uppercase tracking-[0.2em] font-bold">
                     Segurança de ponta a ponta
                 </p>
+            </div>
+
+            {/* BACKGROUND DECORATION */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[20%] -right-[10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px]"></div>
             </div>
 
         </main>
